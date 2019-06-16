@@ -53,3 +53,24 @@ def solve_second_degree(a, b):
     x1 = (-b + np.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
     x2 = (-b - np.sqrt(b ** 2 - 4 * a * c)) / (2 * a)
     return x1, x2
+
+
+def move_second_degree(a, b, c, dx, dy):
+    """Moves a parabola (ax^2+bx+c)'s vertex (m, n) to (m+dx, n+dy)
+
+    Parameters:
+    a (int, float): The 1st coefficient of the parabola ax^2+bx+c
+    2 (int, float): The 2nd coefficient of the parabola ax^2+bx+c
+    3 (int, float): The 3rd coefficient of the parabola ax^2+bx+c
+    dx (int, float): The distant of moving the vertex along +x axis
+    dy (int, float): The distant of moving the vertex along +y axis
+
+    Returns:
+    Tuple (a, b, c) as the new coefficients
+    """
+    h = -b / (2 * a)
+    k = (4 * a * c - b ** 2) / (4 * a)
+    h += (dx,)
+    k += dy
+    return (a, -2 * a * h, a * h ** 2 + k)
+

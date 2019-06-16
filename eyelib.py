@@ -29,9 +29,11 @@ def find_eye_position(eye):
     lower_data_points = np.vstack([xb, yb]).T
     lower_data_points = lower_data_points[lower_data_points[:, 1] != chan_th.shape[0]]
 
-    at, bt, ct = np.polyfit(upper_data_points[:, 0], upper_data_points[:, 1], deg=2)
-    ab, bb, cb = np.polyfit(lower_data_points[:, 0], lower_data_points[:, 1], deg=2)
-    return ((at, bt, ct), (ab, bb, cb))
+    if len(upper_data_points[:, 0]) > 0 and len(lower_data_points[:, 0]) > 0:
+        at, bt, ct = np.polyfit(upper_data_points[:, 0], upper_data_points[:, 1], deg=2)
+        ab, bb, cb = np.polyfit(lower_data_points[:, 0], lower_data_points[:, 1], deg=2)
+        return ((at, bt, ct), (ab, bb, cb))
+    return (None, None)
 
 
 def solve_second_degree(a, b):

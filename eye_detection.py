@@ -9,7 +9,7 @@ cap = cv2.VideoCapture("eyes/videos/1.mp4")
 
 while True:
     ret, img = cap.read()
-
+    print(img.shape)
     eyes = eye_cascade.detectMultiScale(img)
     for (ex, ey, ew, eh) in eyes:
         ex, ey, ew, eh = eyes[0]
@@ -17,16 +17,16 @@ while True:
         roi = img[ey : ey + eh, ex : ex + ew]
         upper_eye, lower_eye = eyelib.find_eye_position(roi)
         if type(upper_eye) != type(None):
-            upper_eye = eyelib.move_second_degree(upper_eye, ex, ey)
-            lower_eye = eyelib.move_second_degree(lower_eye, ex, ey)
+            upper_eye = eyelib.move_second_degree(upper_eye, ex, ey + int(eh * 0.2))
+            lower_eye = eyelib.move_second_degree(lower_eye, ex, ey + int(eh * 0.2))
             upper_eye = np.poly1d(upper_eye)
             lower_eye = np.poly1d(lower_eye)
             y_l, y_r = eyelib.solve_second_degree(upper_eye, lower_eye)
             if not (math.isnan(y_l) or math.isnan(y_r)):
                 x_l, x_r = upper_eye(y_l), upper_eye(y_r)
                 y_l, y_r, x_l, x_r = int(y_l), int(y_r), int(x_l), int(x_r)
-                cv2.circle(img, (x_l, y_l), 3, (0, 0, 255), -1)
-                cv2.circle(img, (x_r, y_r), 3, (0, 255, 0), -1)
+                cv2.circle(img, (y_l, x_l), 3, (0, 0, 255), -1)
+                cv2.circle(img, (y_r, x_r), 3, (0, 255, 0), -1)
     # for ends here
     cv2.imshow("img", img)
     k = cv2.waitKey(30) & 0xFF

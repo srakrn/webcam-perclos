@@ -3,7 +3,7 @@ import cv2
 import eyelib
 import math
 
-eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_righteye_2splits.xml")
+eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_eye_tree_eyeglasses.xml")
 # cap = cv2.VideoCapture(0)
 cap = cv2.VideoCapture("eyes/videos/1.mp4")
 i = 1

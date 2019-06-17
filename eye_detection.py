@@ -3,10 +3,10 @@ import cv2
 import eyelib
 import math
 
-eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_eye.xml")
+eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_righteye_2splits.xml")
 # cap = cv2.VideoCapture(0)
 cap = cv2.VideoCapture("eyes/videos/1.mp4")
-
+i = 1
 while True:
     ret, img = cap.read()
     print(img.shape)
@@ -29,6 +29,8 @@ while True:
                 cv2.circle(img, (y_r, x_r), 3, (0, 255, 0), -1)
     # for ends here
     cv2.imshow("img", img)
+    cv2.imwrite("eyes/{}.png".format(i), img)
+    i += 1
     k = cv2.waitKey(30) & 0xFF
     if k == 27:
         break

@@ -132,5 +132,6 @@ dmypy.json
 # Ignoring VSCode settings
 .vscode
 
-# Ignore videos
+# Ignore videos and photos
 *.mp4
+*.png

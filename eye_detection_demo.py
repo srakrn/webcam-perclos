@@ -35,14 +35,11 @@ while True:
         for i in range(42, 48):
             x, y = landmarks.part(i).x, landmarks.part(i).y
             right_eyes.append([x, y])
-        print(left_eyes)
-        print(right_eyes)
         for (x, y) in left_eyes:
             cv2.circle(img, (x, y), 2, (0, 255, 0), -1)
         for (x, y) in right_eyes:
             cv2.circle(img, (x, y), 2, (0, 0, 255), -1)
         left_ear, right_ear = eye_ear_score(left_eyes), eye_ear_score(right_eyes)
-        print("{} {}".format(left_ear, right_ear))
     cv2.imshow("Frame", img)
     input()
 

@@ -26,7 +26,7 @@ def main():
     )
     eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_eye.xml")
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+    predictor = dlib.shape_predictor("detectors/shape_predictor_68_face_landmarks.dat")
     font = cv2.FONT_HERSHEY_SIMPLEX
 
     cap = cv2.VideoCapture(args.filename)

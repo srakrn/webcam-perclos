@@ -41,8 +41,6 @@ while True:
             cv2.circle(img, (x, y), 2, (0, 0, 255), -1)
         left_ear, right_ear = eye_ear_score(left_eyes), eye_ear_score(right_eyes)
     cv2.imshow("Frame", img)
-    input()
-
     key = cv2.waitKey(1)
     if key == 27:
         break

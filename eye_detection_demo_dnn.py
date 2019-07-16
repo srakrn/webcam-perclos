@@ -3,16 +3,11 @@ from numpy.linalg import norm
 import cv2
 import dlib
 
-face_cascade = cv2.CascadeClassifier("detectors/haarcascade_frontalface_default.xml")
-eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_eye.xml")
-detector = dlib.get_frontal_face_detector()
+detector = dlib.cnn_face_detection_model_v1("mmod_human_face_detector.dat")
 predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-cap = cv2.VideoCapture("eyes/videos/lower_angle_test.mp4")
+cap = cv2.VideoCapture("eyes/videos/WIN_20190701_16_03_32_Pro.mp4")
 font = cv2.FONT_HERSHEY_SIMPLEX
 
-frame_width = int(cap.get(3))
-frame_height = int(cap.get(4))
-out = cv2.VideoWriter('output.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 30, (frame_width,frame_height))
 
 def eye_ear_score(eye_landmarks):
     eye_landmarks = np.array(eye_landmarks)
@@ -32,7 +27,7 @@ while True:
 
     faces = detector(grayscale)
     for face in faces[:1]:
-        l, t, r, b = face.left(), face.top(), face.right(), face.bottom()
+        l, t, r, b = face.rect.left(), face.rect.top(), face.rect.right(), face.rect.bottom()
         cv2.rectangle(img, (l, t), (r, b), (255, 0, 0), 5)
         landmarks = predictor(grayscale, face)
         left_eyes = []
@@ -54,12 +49,10 @@ while True:
         cv2.putText(img, cond, (l, t + 20), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
         f.write("{},{}\n".format(cond, average_ear))
     cv2.imshow("Frame", img)
-    out.write(img)
     key = cv2.waitKey(1)
     if key == 27:
         f.close()
         break
 
 cap.release()
-out.release()
 cv2.destroyAllWindows()

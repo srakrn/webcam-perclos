@@ -132,7 +132,11 @@ dmypy.json
 # Ignoring VSCode settings
 .vscode
 
+# Ignore eyes folder
+eyes
+
 # Ignore videos and photos
 *.mp4
 *.png
 *.avi
+*.csv

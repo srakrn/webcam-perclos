@@ -1,39 +1,95 @@
 import numpy as np
+from numpy.linalg import norm
 import cv2
-import eyelib
-import math
+import dlib
+import argparse
 
-eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_eye_tree_eyeglasses.xml")
-# cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture("eyes/videos/1.mp4")
-i = 1
-while True:
-    ret, img = cap.read()
-    print(img.shape)
-    eyes = eye_cascade.detectMultiScale(img)
-    for (ex, ey, ew, eh) in eyes:
-        ex, ey, ew, eh = eyes[0]
-        cv2.rectangle(img, (ex, ey), (ex + ew, ey + eh), 3)
-        roi = img[ey : ey + eh, ex : ex + ew]
-        upper_eye, lower_eye = eyelib.find_eye_position(roi)
-        if type(upper_eye) != type(None):
-            upper_eye = eyelib.move_second_degree(upper_eye, ex, ey + int(eh * 0.2))
-            lower_eye = eyelib.move_second_degree(lower_eye, ex, ey + int(eh * 0.2))
-            upper_eye = np.poly1d(upper_eye)
-            lower_eye = np.poly1d(lower_eye)
-            y_l, y_r = eyelib.solve_second_degree(upper_eye, lower_eye)
-            if not (math.isnan(y_l) or math.isnan(y_r)):
-                x_l, x_r = upper_eye(y_l), upper_eye(y_r)
-                y_l, y_r, x_l, x_r = int(y_l), int(y_r), int(x_l), int(x_r)
-                cv2.circle(img, (y_l, x_l), 3, (0, 0, 255), -1)
-                cv2.circle(img, (y_r, x_r), 3, (0, 255, 0), -1)
-    # for ends here
-    cv2.imshow("img", img)
-    cv2.imwrite("eyes/{}.png".format(i), img)
-    i += 1
-    k = cv2.waitKey(30) & 0xFF
-    if k == 27:
-        break
 
-cap.release()
-cv2.destroyAllWindows()
+def eye_ear_score(eye_landmarks):
+    eye_landmarks = np.array(eye_landmarks)
+    dh1 = eye_landmarks[1] - eye_landmarks[5]
+    dh2 = eye_landmarks[2] - eye_landmarks[4]
+    dv = eye_landmarks[0] - eye_landmarks[3]
+    return (norm(dh1) + norm(dh2)) / (2 * norm(dv))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", type=str)
+    parser.add_argument("--videoout", type=str)
+    parser.add_argument("--csvout", type=str)
+
+    args = parser.parse_args()
+
+    face_cascade = cv2.CascadeClassifier(
+        "detectors/haarcascade_frontalface_default.xml"
+    )
+    eye_cascade = cv2.CascadeClassifier("detectors/haarcascade_eye.xml")
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+    font = cv2.FONT_HERSHEY_SIMPLEX
+
+    cap = cv2.VideoCapture(args.filename)
+
+    frame_width = int(cap.get(3))
+    frame_height = int(cap.get(4))
+    if args.videoout:
+        out = cv2.VideoWriter(
+            args.videoout,
+            cv2.VideoWriter_fourcc("M", "J", "P", "G"),
+            30,
+            (frame_width, frame_height),
+        )
+
+    if args.csvout:
+        f = open(args.csvout, "w")
+
+    while True:
+        grabbed, img = cap.read()
+        if not grabbed:
+            break
+        grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+        faces = detector(grayscale)
+        for face in faces[:1]:
+            l, t, r, b = face.left(), face.top(), face.right(), face.bottom()
+            cv2.rectangle(img, (l, t), (r, b), (255, 0, 0), 5)
+            landmarks = predictor(grayscale, face)
+            left_eyes = []
+            right_eyes = []
+            for i in range(36, 42):
+                x, y = landmarks.part(i).x, landmarks.part(i).y
+                left_eyes.append([x, y])
+            for i in range(42, 48):
+                x, y = landmarks.part(i).x, landmarks.part(i).y
+                right_eyes.append([x, y])
+            for (x, y) in left_eyes:
+                cv2.circle(img, (x, y), 2, (0, 255, 0), -1)
+            for (x, y) in right_eyes:
+                cv2.circle(img, (x, y), 2, (0, 0, 255), -1)
+            left_ear, right_ear = eye_ear_score(left_eyes), eye_ear_score(right_eyes)
+            average_ear = (left_ear + right_ear) / 2
+            cond = "OPEN" if average_ear > 0.18 else "CLOSED"
+            cond += " ({:.2f})".format(average_ear)
+            cv2.putText(
+                img, cond, (l, t + 20), font, 1, (255, 255, 255), 2, cv2.LINE_AA
+            )
+            if args.csvout:
+                f.write("{},{}\n".format(cond, average_ear))
+        cv2.imshow("Frame", img)
+        if args.videoout:
+            out.write(img)
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+
+    cap.release()
+    if args.csvout:
+        f.close()
+    if args.videoout:
+        out.release()
+    cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    main()

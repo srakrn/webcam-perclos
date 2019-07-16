@@ -75,9 +75,11 @@ def main():
                 )
                 if args.csvout:
                     f.write("{},{},{} ".format(left_ear, right_ear, average_ear))
+            if args.csvout:
+                f.write("\n")
         else:
             if args.csvout:
-                f.write("none,none,none")
+                f.write("none,none,none\n")
         if args.videoout:
             out.write(img)
         cv2.imshow("Frame", img)

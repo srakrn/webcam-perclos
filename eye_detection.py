@@ -51,32 +51,36 @@ def main():
         grayscale = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         faces = detector(grayscale)
-        for face in faces[:1]:
-            l, t, r, b = face.left(), face.top(), face.right(), face.bottom()
-            cv2.rectangle(img, (l, t), (r, b), (255, 0, 0), 5)
-            landmarks = predictor(grayscale, face)
-            left_eyes = []
-            right_eyes = []
-            for i in range(36, 42):
-                x, y = landmarks.part(i).x, landmarks.part(i).y
-                left_eyes.append([x, y])
-            for i in range(42, 48):
-                x, y = landmarks.part(i).x, landmarks.part(i).y
-                right_eyes.append([x, y])
-            for (x, y) in left_eyes:
-                cv2.circle(img, (x, y), 2, (0, 255, 0), -1)
-            for (x, y) in right_eyes:
-                cv2.circle(img, (x, y), 2, (0, 0, 255), -1)
-            left_ear, right_ear = eye_ear_score(left_eyes), eye_ear_score(right_eyes)
-            average_ear = (left_ear + right_ear) / 2
-            cv2.putText(
-                img, "{:.2f}".format(average_ear), (l, t + 20), font, 1, (255, 255, 255), 2, cv2.LINE_AA
-            )
+        if faces:
+            for face in faces:
+                l, t, r, b = face.left(), face.top(), face.right(), face.bottom()
+                cv2.rectangle(img, (l, t), (r, b), (255, 0, 0), 5)
+                landmarks = predictor(grayscale, face)
+                left_eyes = []
+                right_eyes = []
+                for i in range(36, 42):
+                    x, y = landmarks.part(i).x, landmarks.part(i).y
+                    left_eyes.append([x, y])
+                for i in range(42, 48):
+                    x, y = landmarks.part(i).x, landmarks.part(i).y
+                    right_eyes.append([x, y])
+                for (x, y) in left_eyes:
+                    cv2.circle(img, (x, y), 2, (0, 255, 0), -1)
+                for (x, y) in right_eyes:
+                    cv2.circle(img, (x, y), 2, (0, 0, 255), -1)
+                left_ear, right_ear = eye_ear_score(left_eyes), eye_ear_score(right_eyes)
+                average_ear = (left_ear + right_ear) / 2
+                cv2.putText(
+                    img, "{:.2f}".format(average_ear), (l, t + 20), font, 1, (255, 255, 255), 2, cv2.LINE_AA
+                )
+                if args.csvout:
+                    f.write("{},{},{} ".format(left_ear, right_ear, average_ear))
+        else:
             if args.csvout:
-                f.write("{},{},{}\n".format(left_ear, right_ear, average_ear))
-        cv2.imshow("Frame", img)
+                f.write("none,none,none")
         if args.videoout:
             out.write(img)
+        cv2.imshow("Frame", img)
         key = cv2.waitKey(1)
         if key == 27:
             break

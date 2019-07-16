@@ -9,7 +9,6 @@ verify_ssl = true
 numpy = "*"
 dlib = "*"
 argparse = "*"
-cv2 = "*"
 opencv-python = "*"
 
 [requires]

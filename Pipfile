@@ -6,6 +6,11 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+numpy = "*"
+dlib = "*"
+argparse = "*"
+cv2 = "*"
+opencv-python = "*"
 
 [requires]
 python_version = "3.7"

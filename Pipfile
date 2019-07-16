@@ -10,6 +10,7 @@ numpy = "*"
 dlib = "*"
 argparse = "*"
 opencv-python = "*"
+cmake = "*"
 
 [requires]
 python_version = "3.7"

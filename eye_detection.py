@@ -69,13 +69,11 @@ def main():
                 cv2.circle(img, (x, y), 2, (0, 0, 255), -1)
             left_ear, right_ear = eye_ear_score(left_eyes), eye_ear_score(right_eyes)
             average_ear = (left_ear + right_ear) / 2
-            cond = "OPEN" if average_ear > 0.18 else "CLOSED"
-            cond += " ({:.2f})".format(average_ear)
             cv2.putText(
-                img, cond, (l, t + 20), font, 1, (255, 255, 255), 2, cv2.LINE_AA
+                img, "{:.2f}".format(average_ear), (l, t + 20), font, 1, (255, 255, 255), 2, cv2.LINE_AA
             )
             if args.csvout:
-                f.write("{},{}\n".format(cond, average_ear))
+                f.write("{},{},{}\n".format(left_ear, right_ear, average_ear))
         cv2.imshow("Frame", img)
         if args.videoout:
             out.write(img)
